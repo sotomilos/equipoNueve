@@ -5,4 +5,6 @@
     <string name="app_widget_description">This is an app widget description</string>
     <string name="inventory_question">¿Cuánto tengo de inventario?</string>
     <string name="manage_inventory">Gestionar Inventario</string>
+    <string name="inventory">Inventory</string>
+    <string name="imagen_de_inventario">Imagen de inventario</string>
 </resources>

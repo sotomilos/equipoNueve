@@ -8,4 +8,6 @@
     <color name="light_blue_900">#FF01579B</color>
     <color name="inventory_text">#e7522e</color>
     <color name="gear_icon_color">#FA8523</color>
+    <color name="dark_gray">#393939</color>
+    <color name="orange">#e7522e</color>
 </resources>
