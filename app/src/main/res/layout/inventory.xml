@@ -95,7 +95,7 @@
         android:layout_below="@id/appwidget_image"
         android:layout_alignStart="@id/appwidget_image"
         android:layout_marginTop="8dp"
-        android:text="@string/app_name"
+        android:text="@string/widget_name"
         android:textColor="@color/inventory_text"
         android:textSize="22sp"
         android:textStyle="bold" />
