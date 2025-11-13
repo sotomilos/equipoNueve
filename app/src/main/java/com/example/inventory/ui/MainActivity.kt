@@ -17,6 +17,7 @@ import com.example.inventory.R
 import com.example.inventory.model.Inventory
 import com.example.inventory.repository.InventoryRepository
 import com.example.inventory.fragments.LoginFragment
+import com.example.inventory.sessions.SessionManager
 import com.example.inventory.utils.Constants
 import kotlinx.coroutines.launch
 import com.example.inventory.viewmodel.LoginViewModel
@@ -26,6 +27,7 @@ import com.example.inventory.viewmodel.LoginViewModel
 class MainActivity : AppCompatActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels()
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity() {
                     LoginViewModel.AuthState.SUCCESS -> {
                         Toast.makeText(this, Constants.AUTHENTICATED, Toast.LENGTH_SHORT).show()
                         // TODO: Navigate to the main part of your app!
+                        sessionManager.saveLoginState(true)
                     }
                     LoginViewModel.AuthState.FAILED -> {
                         Toast.makeText(this, Constants.AUTHENTICATED_FAILED, Toast.LENGTH_SHORT).show()
