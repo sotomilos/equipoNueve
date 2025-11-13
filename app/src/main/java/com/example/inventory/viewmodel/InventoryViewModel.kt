@@ -1,14 +1,17 @@
-package com.example.inventory
+package com.example.inventory.viewmodel
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import com.example.inventory.R
+import com.example.inventory.ui.MainActivity
+import com.example.inventory.ui.widget.Inventory
 
-private const val PREFS_NAME = "com.example.inventory.Inventory"
+private const val PREFS_NAME = "com.example.inventory.ui.widget.Inventory"
 private const val PREF_PREFIX_KEY = "appwidget_"
-const val ACTION_TOGGLE_VISIBILITY = "com.example.inventory.ACTION_TOGGLE_VISIBILITY"
+const val ACTION_TOGGLE_VISIBILITY = "com.example.inventory.viewmodel.ACTION_TOGGLE_VISIBILITY"
 
 fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
     val views = RemoteViews(context.packageName, R.layout.inventory)

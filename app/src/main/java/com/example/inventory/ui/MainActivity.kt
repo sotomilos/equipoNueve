@@ -1,4 +1,4 @@
-package com.example.inventory
+package com.example.inventory.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.inventory.R
 import com.example.inventory.model.Inventory
 import com.example.inventory.repository.InventoryRepository
 import kotlinx.coroutines.launch
@@ -30,7 +31,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 // Guardar un inventario
-                val inv = Inventory(id = 2, name = "Inventario de prueba dos", price = 200, quantity = 20)
+                val inv =
+                    Inventory(id = 2, name = "Inventario de prueba dos", price = 200, quantity = 20)
                 repository.saveInventory(inv)
                 Log.d("REPO_TEST", "Inventario guardado: $inv")
 
