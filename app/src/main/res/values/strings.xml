@@ -8,5 +8,10 @@
     <string name="manage_inventory">Gestionar Inventario</string>
     <string name="inventory">Inventory</string>
     <string name="imagen_de_inventario">Imagen de inventario</string>
-    <string name="imagen_de_huella">Fingerprint</string>
+    <string name="imagen_de_huella">Imagen de huella</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="button_add">buttonadd</string>
+    <string name="idProduct">Id: 1</string>
+    <string name="priceProduct">$15.000</string>
+    <string name="nameProduct">zapatos</string>
 </resources>
