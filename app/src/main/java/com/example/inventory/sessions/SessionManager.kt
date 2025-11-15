@@ -23,4 +23,10 @@ class SessionManager(context: Context) {
     fun isLoggedIn(): Boolean {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
     }
+
+    fun logout() {
+        val editor = prefs.edit()
+        editor.remove(KEY_IS_LOGGED_IN) // Remove the key
+        editor.apply()
+    }
 }
