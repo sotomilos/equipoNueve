@@ -15,6 +15,7 @@ import com.example.inventory.adapters.InventoryAdapter
 import com.example.inventory.sessions.SessionManager
 import com.example.inventory.ui.MainActivity
 import com.example.inventory.viewmodel.HomeInventoryViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class HomeInventoryFragment : Fragment() {
 
@@ -35,6 +36,7 @@ class HomeInventoryFragment : Fragment() {
 
         setupRecyclerView(view)
         setupLogoutButton(view)
+        setupFabAdd(view)
 
         viewModel.inventoryItems.observe(viewLifecycleOwner) {
             inventoryAdapter.updateData(it)
@@ -58,4 +60,18 @@ class HomeInventoryFragment : Fragment() {
             startActivity(intent)
         }
     }
+
+    private fun setupFabAdd(view: View) {
+        val fabAdd = view.findViewById<FloatingActionButton>(R.id.fbagregar)
+        fabAdd.setOnClickListener {
+
+            val addFragment = AddProductFragment()
+            parentFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, addFragment)
+                .addToBackStack("add_product")
+                .commit()
+        }
+    }
 }
+
