@@ -2,7 +2,6 @@ package com.example.inventory.fragments
 
 import android.os.Bundle
 import android.text.InputFilter
-import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,9 +30,7 @@ class AddProductFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // Campo código producto
-        val tietCode = view.findViewById<TextInputEditText>(R.id.tiet_product_code)
-
+        // --- Filtros reutilizables ---
         // Filtro: sólo dígitos (protege contra pegado de texto con letras)
         val onlyDigitsFilter = InputFilter { source, start, end, dest, dstart, dend ->
             val sb = StringBuilder()
@@ -44,20 +41,18 @@ class AddProductFragment : Fragment() {
             if (sb.length == end - start) null else sb.toString()
         }
 
-        // Filtro longitud máxima para código (4)
+        // --- Código producto (solo dígitos, max 4) ---
+        val tietCode = view.findViewById<TextInputEditText>(R.id.tiet_product_code)
         val maxLenCode = InputFilter.LengthFilter(4)
         tietCode.filters = arrayOf(maxLenCode, onlyDigitsFilter)
 
-        // Campo nombre producto
+        // --- Nombre artículo (max 40, permite letras, números, espacios y algunos signos) ---
         val tietName = view.findViewById<TextInputEditText>(R.id.tiet_product_name)
-        // Filtro longitud máxima 40 (también definido en XML, pero reforzamos)
         val maxLenName = InputFilter.LengthFilter(40)
-        // Si quieres evitar caracteres de control raros, puedes añadir un filtro que permita espacios y letras:
         val allowedCharsFilter = InputFilter { source, start, end, dest, dstart, dend ->
             val sb = StringBuilder()
             for (i in start until end) {
                 val c = source[i]
-                // permitimos letras, dígitos (por si acaso), espacios y signos básicos
                 if (c.isLetterOrDigit() || c.isWhitespace() || c in listOf('-', '_', '.', ',')) {
                     sb.append(c)
                 }
@@ -66,13 +61,25 @@ class AddProductFragment : Fragment() {
         }
         tietName.filters = arrayOf(maxLenName, allowedCharsFilter)
 
-        // Botón guardar: validaciones básicas
+        // --- Precio (solo dígitos, max 20) ---
+        val tietPrice = view.findViewById<TextInputEditText>(R.id.tiet_product_price)
+        val maxLenPrice = InputFilter.LengthFilter(20)
+        tietPrice.filters = arrayOf(maxLenPrice, onlyDigitsFilter)
+
+        // --- Cantidad (solo dígitos, max 4) (CRITERIO 5) ---
+        val tietQuantity = view.findViewById<TextInputEditText>(R.id.tiet_product_quantity)
+        val maxLenQuantity = InputFilter.LengthFilter(4)
+        tietQuantity.filters = arrayOf(maxLenQuantity, onlyDigitsFilter)
+
+        // --- Guardar ---
         val btnSave = view.findViewById<Button>(R.id.btn_save_product)
         btnSave.setOnClickListener {
             val codeText = tietCode.text?.toString()?.trim() ?: ""
             val nameText = tietName.text?.toString()?.trim() ?: ""
+            val priceText = tietPrice.text?.toString()?.trim() ?: ""
+            val quantityText = tietQuantity.text?.toString()?.trim() ?: ""
 
-            // Validaciones
+            // Validaciones simples
             if (codeText.isEmpty()) {
                 showToast("Ingresa el código del producto")
                 return@setOnClickListener
@@ -89,10 +96,25 @@ class AddProductFragment : Fragment() {
                 showToast("El nombre debe tener máximo 40 caracteres")
                 return@setOnClickListener
             }
+            if (priceText.isEmpty()) {
+                showToast("Ingresa el precio")
+                return@setOnClickListener
+            }
+            if (priceText.length > 20) {
+                showToast("El precio debe tener máximo 20 dígitos")
+                return@setOnClickListener
+            }
+            if (quantityText.isEmpty()) {
+                showToast("Ingresa la cantidad")
+                return@setOnClickListener
+            }
+            if (quantityText.length > 4) {
+                showToast("La cantidad debe tener máximo 4 dígitos")
+                return@setOnClickListener
+            }
 
-            // TODO: integrar con tu ViewModel / Repository para guardar el producto
-            // Ejemplo placeholder:
-            showToast("Guardado: $codeText — $nameText")
+            // TODO: integrar con tu ViewModel/Repo para guardar producto
+            showToast("Guardado: $codeText — $nameText — $priceText — qty:$quantityText")
 
             // Cerrar fragment (si quieres)
             parentFragmentManager.popBackStack()
@@ -103,6 +125,7 @@ class AddProductFragment : Fragment() {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
     }
 }
+
 
 
 
