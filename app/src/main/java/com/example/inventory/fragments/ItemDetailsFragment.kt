@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import com.example.inventory.R
 import com.example.inventory.model.Inventory
 import com.example.inventory.viewmodel.InventoryViewModelC
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 @Suppress("DEPRECATION")
 class ItemDetailsFragment : Fragment() {
@@ -46,6 +47,18 @@ class ItemDetailsFragment : Fragment() {
                     }
                     .setNegativeButton("No", null)
                     .show()
+            }
+
+            view.findViewById<FloatingActionButton>(R.id.fabEdit).setOnClickListener {
+                val fragment = UpdateProductFragment().apply {
+                    arguments = Bundle().apply {
+                        putSerializable("inventory_item", item)
+                    }
+                }
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.main_fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
         }
     }
