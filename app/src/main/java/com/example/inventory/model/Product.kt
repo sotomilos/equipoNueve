@@ -7,9 +7,9 @@ data class Product(
     @SerializedName("id")
     val id:Int,
 
-    @SerializedName("title")
-    val title: String,
+    @SerializedName("name")
+    val name: String,
 
-    @SerializedName("image")
-    val image:String
+    @SerializedName("price")
+    val price: Double
 )

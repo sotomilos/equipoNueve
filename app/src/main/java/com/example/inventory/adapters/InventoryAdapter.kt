@@ -29,13 +29,13 @@ class InventoryAdapter(private var items: List<Inventory>) : RecyclerView.Adapte
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.tv_item_name)
-        private val quantityTextView: TextView = itemView.findViewById(R.id.tv_item_quantity)
+        private val idTextView: TextView = itemView.findViewById(R.id.tv_item_id)
         private val priceTextView: TextView = itemView.findViewById(R.id.tv_item_price)
 
         fun bind(item: Inventory) {
             nameTextView.text = item.name
-            quantityTextView.text = "Quantity: ${item.quantity}"
-            priceTextView.text = "Price: $${item.price}"
+            idTextView.text = "Id: ${item.id}"
+            priceTextView.text = "$${item.price}"
         }
     }
 }
