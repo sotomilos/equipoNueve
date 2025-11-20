@@ -13,7 +13,10 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.inventory.R
+import com.example.inventory.model.Inventory
+import com.example.inventory.viewmodel.InventoryViewModelC
 import com.google.android.material.textfield.TextInputEditText
 
 class AddProductFragment : Fragment() {
@@ -23,6 +26,10 @@ class AddProductFragment : Fragment() {
     private lateinit var tietPrice: TextInputEditText
     private lateinit var tietQuantity: TextInputEditText
     private lateinit var btnSave: Button
+
+    // TODO: inject InventoryViewModel
+    private val inventoryViewModelC: InventoryViewModelC by viewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -107,10 +114,15 @@ class AddProductFragment : Fragment() {
             if (price.length > 20) { showToast("Precio: máximo 20 dígitos"); return@setOnClickListener }
             if (qty.length > 4) { showToast("Cantidad: máximo 4 dígitos"); return@setOnClickListener }
 
-            // TODO: integrar con ViewModel/Repo para persistir el producto
-            showToast("Guardado: $code - $name - $price - qty:$qty")
+            val inventory = Inventory(code.toInt(), name, price.toDouble(), qty.toInt())
 
-            parentFragmentManager.popBackStack()
+            inventoryViewModelC.saveInventory(inventory) { msg ->
+                // This is the correct sequence:
+                // 1. Show the confirmation message.
+                showToast(msg)
+                // 2. Navigate back AFTER the save is confirmed.
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 
@@ -156,8 +168,3 @@ class AddProductFragment : Fragment() {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
     }
 }
-
-
-
-
-

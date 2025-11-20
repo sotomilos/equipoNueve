@@ -10,11 +10,14 @@ import com.example.inventory.model.Inventory
 
 @Dao
 interface InventoryDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) // En caso de elemento repetido, reemplaza
     suspend fun saveInventory(inventory: Inventory)
 
     @Query("SELECT * FROM Inventory")
     suspend fun getListInventory(): MutableList<Inventory>
+
+    @Query("SELECT * FROM Inventory WHERE id = :id")
+    suspend fun getInventoryItem(id: Int): MutableList<Inventory>
 
     @Delete
     suspend fun deleteInventory(inventory: Inventory)

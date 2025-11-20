@@ -9,14 +9,20 @@ import com.example.inventory.webservice.ApiService
 import com.example.inventory.webservice.ApiUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Response
 
 class InventoryRepository(val context: Context) {
     private var inventoryDao:InventoryDao = InventoryDB.getDatabase(context).inventoryDao()
     private var apiService: ApiService = ApiUtils.getApiService()
 
-    suspend fun saveInventory(inventory:Inventory){
-        withContext(Dispatchers.IO){
-            inventoryDao.saveInventory(inventory)
+    suspend fun saveInventory(inventory:Inventory, messageResponse: (String) -> Unit) {
+        try {
+            withContext(Dispatchers.IO){
+                inventoryDao.saveInventory(inventory)
+            }
+            messageResponse("Success from InventoryRepository")
+        }catch (e:Exception){
+            messageResponse("Error from InventoryRepository: ${e.message}")
         }
     }
 
@@ -32,7 +38,7 @@ class InventoryRepository(val context: Context) {
         }
     }
 
-    suspend fun updateRepositoy(inventory: Inventory){
+    suspend fun updateInventory(inventory: Inventory){
         withContext(Dispatchers.IO){
             inventoryDao.updateInventory(inventory)
         }

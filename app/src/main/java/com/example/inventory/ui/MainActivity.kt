@@ -96,9 +96,9 @@ class MainActivity : AppCompatActivity() {
         val repository = InventoryRepository(this)
         lifecycleScope.launch {
             try {
-                val inv = Inventory(id = 2, name = "Inventario de prueba dos", price = 200, quantity = 20)
-                repository.saveInventory(inv)
-                Log.d("REPO_TEST", "Inventario guardado: $inv")
+                // val inv = Inventory(id = 2, name = "Inventario de prueba dos", price = 200.0, quantity = 20)
+                // repository.saveInventory(inv)
+                // Log.d("REPO_TEST", "Inventario guardado: $inv")
                 val list = repository.getListInventory()
                 Log.d("REPO_TEST", "Inventarios obtenidos: $list")
                 val products = repository.getProducts()

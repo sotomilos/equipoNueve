@@ -6,9 +6,9 @@ import java.io.Serializable
 
 @Entity(tableName = "inventory")
 data class Inventory(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Int = 0,
     val name: String,
-    val price: Int,
+    val price: Double,
     val quantity: Int
 ) : Serializable
