@@ -47,7 +47,7 @@
         app:layout_constraintTop_toTopOf="@id/toolbar_add_product"
         app:layout_constraintBottom_toBottomOf="@id/toolbar_add_product"/>
 
-    <!-- CAMPO: Código producto (criterio 2) -->
+    <!-- Código producto -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_product_code"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -80,7 +80,7 @@
             android:paddingBottom="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- CAMPO: Nombre artículo (criterio 3) -->
+    <!-- Nombre artículo -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_product_name"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -112,7 +112,7 @@
             android:paddingBottom="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- CAMPO: Precio (criterio 4) -->
+    <!-- Precio -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_product_price"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -145,7 +145,7 @@
             android:paddingBottom="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- CAMPO: Cantidad (criterio 5) -->
+    <!-- Cantidad -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_product_quantity"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -178,12 +178,12 @@
             android:paddingBottom="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- CONTENIDO (otros campos y botón Guardar) -->
+    <!-- Scroll + Botón Guardar -->
     <ScrollView
         android:id="@+id/scroll_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
+        android:padding="0dp"
         app:layout_constraintTop_toBottomOf="@id/til_product_quantity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -192,14 +192,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Botón Guardar (inicialmente desactivado) -->
             <Button
                 android:id="@+id/btn_save_product"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Guardar"
-                android:layout_marginTop="8dp"/>
+                android:textColor="@color/white"
+                android:background="@drawable/bg_button_orange"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:enabled="false"
+                android:alpha="0.4"/>
 
         </LinearLayout>
     </ScrollView>

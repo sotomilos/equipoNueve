@@ -1,18 +1,28 @@
 package com.example.inventory.fragments
 
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputFilter
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.inventory.R
 import com.google.android.material.textfield.TextInputEditText
 
 class AddProductFragment : Fragment() {
+
+    private lateinit var tietCode: TextInputEditText
+    private lateinit var tietName: TextInputEditText
+    private lateinit var tietPrice: TextInputEditText
+    private lateinit var tietQuantity: TextInputEditText
+    private lateinit var btnSave: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,15 +34,19 @@ class AddProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Back arrow
+        // find views
         val ivBack = view.findViewById<ImageView>(R.id.iv_back)
-        ivBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        tietCode = view.findViewById(R.id.tiet_product_code)
+        tietName = view.findViewById(R.id.tiet_product_name)
+        tietPrice = view.findViewById(R.id.tiet_product_price)
+        tietQuantity = view.findViewById(R.id.tiet_product_quantity)
+        btnSave = view.findViewById(R.id.btn_save_product)
 
-        // --- Filtros reutilizables ---
-        // Filtro: sólo dígitos (protege contra pegado de texto con letras)
-        val onlyDigitsFilter = InputFilter { source, start, end, dest, dstart, dend ->
+        // back action
+        ivBack.setOnClickListener { parentFragmentManager.popBackStack() }
+
+        // --- filtros reutilizables ---
+        val onlyDigitsFilter = InputFilter { source, start, end, _, _, _ ->
             val sb = StringBuilder()
             for (i in start until end) {
                 val c = source[i]
@@ -41,15 +55,7 @@ class AddProductFragment : Fragment() {
             if (sb.length == end - start) null else sb.toString()
         }
 
-        // --- Código producto (solo dígitos, max 4) ---
-        val tietCode = view.findViewById<TextInputEditText>(R.id.tiet_product_code)
-        val maxLenCode = InputFilter.LengthFilter(4)
-        tietCode.filters = arrayOf(maxLenCode, onlyDigitsFilter)
-
-        // --- Nombre artículo (max 40, permite letras, números, espacios y algunos signos) ---
-        val tietName = view.findViewById<TextInputEditText>(R.id.tiet_product_name)
-        val maxLenName = InputFilter.LengthFilter(40)
-        val allowedCharsFilter = InputFilter { source, start, end, dest, dstart, dend ->
+        val allowedCharsFilter = InputFilter { source, start, end, _, _, _ ->
             val sb = StringBuilder()
             for (i in start until end) {
                 val c = source[i]
@@ -59,65 +65,90 @@ class AddProductFragment : Fragment() {
             }
             if (sb.length == end - start) null else sb.toString()
         }
-        tietName.filters = arrayOf(maxLenName, allowedCharsFilter)
 
-        // --- Precio (solo dígitos, max 20) ---
-        val tietPrice = view.findViewById<TextInputEditText>(R.id.tiet_product_price)
-        val maxLenPrice = InputFilter.LengthFilter(20)
-        tietPrice.filters = arrayOf(maxLenPrice, onlyDigitsFilter)
+        // apply input filters (length + content)
+        tietCode.filters = arrayOf(InputFilter.LengthFilter(4), onlyDigitsFilter)
+        tietName.filters = arrayOf(InputFilter.LengthFilter(40), allowedCharsFilter)
+        tietPrice.filters = arrayOf(InputFilter.LengthFilter(20), onlyDigitsFilter)
+        tietQuantity.filters = arrayOf(InputFilter.LengthFilter(4), onlyDigitsFilter)
 
-        // --- Cantidad (solo dígitos, max 4) (CRITERIO 5) ---
-        val tietQuantity = view.findViewById<TextInputEditText>(R.id.tiet_product_quantity)
-        val maxLenQuantity = InputFilter.LengthFilter(4)
-        tietQuantity.filters = arrayOf(maxLenQuantity, onlyDigitsFilter)
+        // TextWatcher para actualizar estado del botón
+        val tw = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateSaveButtonState()
+            }
+        }
 
-        // --- Guardar ---
-        val btnSave = view.findViewById<Button>(R.id.btn_save_product)
+        tietCode.addTextChangedListener(tw)
+        tietName.addTextChangedListener(tw)
+        tietPrice.addTextChangedListener(tw)
+        tietQuantity.addTextChangedListener(tw)
+
+        // estado inicial
+        updateSaveButtonState()
+
+        // acción Guardar
         btnSave.setOnClickListener {
-            val codeText = tietCode.text?.toString()?.trim() ?: ""
-            val nameText = tietName.text?.toString()?.trim() ?: ""
-            val priceText = tietPrice.text?.toString()?.trim() ?: ""
-            val quantityText = tietQuantity.text?.toString()?.trim() ?: ""
+            val code = tietCode.text?.toString()?.trim()
+            val name = tietName.text?.toString()?.trim()
+            val price = tietPrice.text?.toString()?.trim()
+            val qty = tietQuantity.text?.toString()?.trim()
 
-            // Validaciones simples
-            if (codeText.isEmpty()) {
-                showToast("Ingresa el código del producto")
-                return@setOnClickListener
-            }
-            if (codeText.length > 4) {
-                showToast("El código debe tener máximo 4 dígitos")
-                return@setOnClickListener
-            }
-            if (nameText.isEmpty()) {
-                showToast("Ingresa el nombre del artículo")
-                return@setOnClickListener
-            }
-            if (nameText.length > 40) {
-                showToast("El nombre debe tener máximo 40 caracteres")
-                return@setOnClickListener
-            }
-            if (priceText.isEmpty()) {
-                showToast("Ingresa el precio")
-                return@setOnClickListener
-            }
-            if (priceText.length > 20) {
-                showToast("El precio debe tener máximo 20 dígitos")
-                return@setOnClickListener
-            }
-            if (quantityText.isEmpty()) {
-                showToast("Ingresa la cantidad")
-                return@setOnClickListener
-            }
-            if (quantityText.length > 4) {
-                showToast("La cantidad debe tener máximo 4 dígitos")
+            if (code.isNullOrEmpty() || name.isNullOrEmpty() || price.isNullOrEmpty() || qty.isNullOrEmpty()) {
+                showToast("Completa todos los campos antes de guardar")
                 return@setOnClickListener
             }
 
-            // TODO: integrar con tu ViewModel/Repo para guardar producto
-            showToast("Guardado: $codeText — $nameText — $priceText — qty:$quantityText")
+            // Validaciones finales
+            if (code.length > 4) { showToast("Código: máximo 4 dígitos"); return@setOnClickListener }
+            if (name.length > 40) { showToast("Nombre: máximo 40 caracteres"); return@setOnClickListener }
+            if (price.length > 20) { showToast("Precio: máximo 20 dígitos"); return@setOnClickListener }
+            if (qty.length > 4) { showToast("Cantidad: máximo 4 dígitos"); return@setOnClickListener }
 
-            // Cerrar fragment (si quieres)
+            // TODO: integrar con ViewModel/Repo para persistir el producto
+            showToast("Guardado: $code - $name - $price - qty:$qty")
+
             parentFragmentManager.popBackStack()
+        }
+    }
+
+    /**
+     * Actualiza el estado del botón Guardar:
+     * - Si todos los campos tienen texto: habilita el botón, cambia fondo a naranja,
+     *   establece texto en blanco y en bold.
+     * - Si falta algún campo: deshabilita el botón, fondo gris y texto en normal.
+     */
+    private fun updateSaveButtonState() {
+        val code = tietCode.text?.toString()?.trim()
+        val name = tietName.text?.toString()?.trim()
+        val price = tietPrice.text?.toString()?.trim()
+        val qty = tietQuantity.text?.toString()?.trim()
+
+        val allFilled = !code.isNullOrEmpty()
+                && !name.isNullOrEmpty()
+                && !price.isNullOrEmpty()
+                && !qty.isNullOrEmpty()
+
+        if (allFilled) {
+            // habilitado: fondo naranja sólido + texto BLANCO BOLD
+            btnSave.isEnabled = true
+            btnSave.isClickable = true
+            btnSave.alpha = 1f
+            btnSave.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_button_orange)
+            // asegurar color blanco y bold
+            btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            btnSave.setTypeface(null, Typeface.BOLD)
+        } else {
+            // deshabilitado: fondo gris + texto normal
+            btnSave.isEnabled = false
+            btnSave.isClickable = false
+            btnSave.alpha = 0.4f
+            btnSave.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_button_disabled)
+            // mantener texto visible pero sin negrita
+            btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            btnSave.setTypeface(null, Typeface.NORMAL)
         }
     }
 
@@ -125,6 +156,7 @@ class AddProductFragment : Fragment() {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
     }
 }
+
 
 
 
