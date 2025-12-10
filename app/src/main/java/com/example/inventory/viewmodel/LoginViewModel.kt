@@ -7,6 +7,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -43,7 +44,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
-    fun startAuthentication(activity: FragmentActivity) {
+    fun startAuthentication(activity: Fragment) {
         val biometricManager = BiometricManager.from(getApplication())
         val authenticators = BIOMETRIC_STRONG
 
@@ -64,7 +65,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun setupBiometricPrompt(activity: FragmentActivity) {
+    private fun setupBiometricPrompt(activity: Fragment) {
         val executor = ContextCompat.getMainExecutor(getApplication())
 
         val callback = object : BiometricPrompt.AuthenticationCallback() {

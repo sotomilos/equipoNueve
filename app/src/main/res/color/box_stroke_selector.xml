@@ -4,6 +4,6 @@
     <item android:state_focused="true" android:color="@color/white"/>
     <!-- Cuando está presionado -->
     <item android:state_pressed="true" android:color="@color/white"/>
-    <!-- Estado por defecto: transparente (sin borde visible) -->
-    <item android:color="@android:color/transparent"/>
+    <!-- Estado por defecto: Un blanco más suave -->
+    <item android:color="#80FFFFFF"/>
 </selector>

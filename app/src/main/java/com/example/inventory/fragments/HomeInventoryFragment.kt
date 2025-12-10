@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.R
 import com.example.inventory.adapters.InventoryAdapter
+import com.example.inventory.model.Inventory
 import com.example.inventory.sessions.SessionManager
 import com.example.inventory.ui.MainActivity
 import com.example.inventory.viewmodel.InventoryViewModelC
@@ -26,6 +27,7 @@ class HomeInventoryFragment : Fragment() {
     private lateinit var inventoryAdapter: InventoryAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,7 +76,17 @@ class HomeInventoryFragment : Fragment() {
 
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        inventoryAdapter = InventoryAdapter(emptyList())
+        inventoryAdapter = InventoryAdapter(emptyList()) { inventory ->
+            val fragment = ItemDetailsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable("inventory_item", inventory)
+                }
+            }
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.main_fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
         recyclerView.adapter = inventoryAdapter
     }
 

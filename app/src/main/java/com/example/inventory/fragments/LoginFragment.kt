@@ -6,10 +6,28 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
+import com.example.inventory.viewmodel.LoginViewModel
 import java.util.concurrent.Executor
+import kotlin.getValue
+import com.example.inventory.R
+import com.example.inventory.sessions.SessionManager
+import com.example.inventory.utils.Constants
 
 class LoginFragment : Fragment() {
+
+    private val loginViewModel: LoginViewModel by viewModels()
+    private lateinit var sessionManager: SessionManager
+
+
 
     interface BiometricAuthListener {
         fun onBiometricAuthSuccess()
@@ -29,9 +47,39 @@ class LoginFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // enableEdgeToEdge()
+        // setContentView(R.layout.activity_main)
+
+        sessionManager = SessionManager(requireContext())
 
         executor = ContextCompat.getMainExecutor(requireContext())
         setupBiometricPrompt()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_login, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState);
+
+        val mainLayout = view.findViewById<View>(R.id.login_layout)
+        ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        val fingerprintIcon = view.findViewById<ImageView>(R.id.iv_fingerprint_login)
+        fingerprintIcon.setOnClickListener {
+            loginViewModel.startAuthentication(this)
+        }
+        setupObservers()
+
     }
 
     private fun setupBiometricPrompt() {
@@ -95,6 +143,44 @@ class LoginFragment : Fragment() {
                 authListener?.onBiometricAuthError("An unknown biometric error occurred.")
                 return false
             }
+        }
+    }
+
+    private fun setupObservers() {
+        loginViewModel.authState.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { state ->
+                when (state) {
+                    LoginViewModel.AuthState.SUCCESS -> {
+                        Toast.makeText(requireContext(), Constants.AUTHENTICATED, Toast.LENGTH_SHORT).show()
+
+                        sessionManager.saveLoginState(true)
+                        navigateToHome()
+                    }
+                    LoginViewModel.AuthState.FAILED -> {
+                        Toast.makeText(requireContext(), Constants.AUTHENTICATED_FAILED, Toast.LENGTH_SHORT).show()
+                    }
+                    LoginViewModel.AuthState.ERROR -> {
+                    }
+                }
+            }
+        }
+        loginViewModel.errorMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            }
+        }
+
+        loginViewModel.enrollmentIntent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { intent ->
+                Toast.makeText(requireContext(), Constants.ADD_FINGERPRINT, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun navigateToHome() {
+        parentFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.main_fragment_container, HomeInventoryFragment())
         }
     }
 
