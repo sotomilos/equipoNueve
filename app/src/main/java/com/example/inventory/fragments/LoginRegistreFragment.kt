@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.example.inventory.R
 import com.example.inventory.databinding.FragmentLoginAndRegistreBinding
 import com.example.inventory.ui.MainActivity
+import com.example.inventory.ui.widget.EXTRA_FROM_WIDGET   // 👈 IMPORTANTE
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -48,7 +49,7 @@ class LoginRegistreFragment : Fragment() {
                     .addOnCompleteListener(requireActivity()) { task ->
                         if (task.isSuccessful) {
                             Log.d("Login", "signInWithEmail:success")
-                            (activity as? MainActivity)?.showHome()
+                            goAfterAuthSuccess()
                         } else {
                             Log.w("Login", "signInWithEmail:failure", task.exception)
                             Toast.makeText(
@@ -61,6 +62,7 @@ class LoginRegistreFragment : Fragment() {
                 Toast.makeText(context, "Please enter email and password.", Toast.LENGTH_SHORT).show()
             }
         }
+
         binding.tvRegistrarse.setOnClickListener {
             val email = binding.tietEmail.text.toString().trim()
             val password = binding.tietPassword.text.toString().trim()
@@ -70,7 +72,7 @@ class LoginRegistreFragment : Fragment() {
                     .addOnCompleteListener(requireActivity()) { task ->
                         if (task.isSuccessful) {
                             Log.d("Register", "createUserWithEmail:success")
-                            (activity as? MainActivity)?.showHome()
+                            goAfterAuthSuccess()
                         } else {
                             Log.w("Register", "createUserWithEmail:failure", task.exception)
                             Toast.makeText(
@@ -101,8 +103,28 @@ class LoginRegistreFragment : Fragment() {
         binding.tietPassword.addTextChangedListener(textWatcher)
     }
 
+    /**
+     * Lógica común después de un login o registro exitoso.
+     * Si vino desde el widget → se cierra la Activity y vuelve al escritorio.
+     * Si NO vino del widget → navega al Home normal.
+     */
+    private fun goAfterAuthSuccess() {
+        val fromWidget = requireActivity()
+            .intent
+            .getBooleanExtra(EXTRA_FROM_WIDGET, false)
+
+        if (fromWidget) {
+            // ✅ Criterio 10: volver al widget (cerrar la activity)
+            requireActivity().finish()
+        } else {
+            // Caso normal: ir al Home de la app
+            (activity as? MainActivity)?.showHome()
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
+

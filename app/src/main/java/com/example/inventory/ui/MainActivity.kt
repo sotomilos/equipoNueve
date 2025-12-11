@@ -7,10 +7,10 @@ import androidx.fragment.app.commit
 import com.example.inventory.R
 import com.example.inventory.fragments.HomeInventoryFragment
 import com.example.inventory.fragments.LoginRegistreFragment
+import com.example.inventory.ui.widget.EXTRA_FROM_WIDGET   // 👈 IMPORTANTE
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,11 +23,20 @@ class MainActivity : AppCompatActivity() {
 
         auth = Firebase.auth
 
+        // ¿Esta Activity se abrió porque el usuario tocó el widget?
+        val fromWidget = intent.getBooleanExtra(EXTRA_FROM_WIDGET, false)
+
         if (savedInstanceState == null) {
-            if (auth.currentUser != null) {
-                showHome()
-            } else {
-                showLogin()
+            when {
+                fromWidget -> {
+                    showLogin()
+                }
+                auth.currentUser != null -> {
+                    showHome()
+                }
+                else -> {
+                    showLogin()
+                }
             }
         }
     }
@@ -46,3 +55,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+

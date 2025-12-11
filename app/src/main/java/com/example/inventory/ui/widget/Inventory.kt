@@ -18,13 +18,16 @@ import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 
-// Preferencias para recordar si el saldo está visible u oculto por widget
+// Preferencias para guardar si el saldo está visible u oculto por widget
 private const val PREFS_NAME = "com.example.inventory.ui.widget.Inventory"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
-// Acción que se dispara al tocar el ojo
+// Acción que se dispara cuando se toca el botón del ojo
 const val ACTION_TOGGLE_VISIBILITY =
     "com.example.inventory.ui.widget.ACTION_TOGGLE_VISIBILITY"
+
+// Extra para saber que MainActivity fue abierta desde el widget
+const val EXTRA_FROM_WIDGET = "EXTRA_FROM_WIDGET"
 
 class Inventory : AppWidgetProvider() {
 
@@ -39,7 +42,7 @@ class Inventory : AppWidgetProvider() {
         }
     }
 
-    // Se llama cuando recibimos un broadcast (por ejemplo, del PendingIntent del ojo)
+    // Recibe los broadcasts (por ejemplo, del PendingIntent del ojo)
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
@@ -48,11 +51,22 @@ class Inventory : AppWidgetProvider() {
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID
             )
+            if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
 
-            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                // Cambiar el estado visible/oculto en SharedPreferences
+            val auth = FirebaseAuth.getInstance()
+            val userLoggedIn = auth.currentUser != null
+
+            if (!userLoggedIn) {
+                // NO está logueado → ir a HU 2.0 (Login y Registro)
+                val loginIntent = Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra(EXTRA_FROM_WIDGET, true) // para que MainActivity sepa que viene del widget
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                }
+                context.startActivity(loginIntent)
+            } else {
+                // Está logueado → funciona como interruptor (mostrar/ocultar saldo)
                 toggleVisibility(context, appWidgetId)
-                // Volver a dibujar el widget
                 updateAppWidget(
                     context,
                     AppWidgetManager.getInstance(context),
@@ -62,7 +76,7 @@ class Inventory : AppWidgetProvider() {
         }
     }
 
-    // Limpia las preferencias cuando se elimina el widget
+    // Limpia preferencias cuando se elimina el widget
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
             onWidgetDeleted(context, appWidgetId)
@@ -70,7 +84,7 @@ class Inventory : AppWidgetProvider() {
     }
 }
 
-// Actualiza el contenido del widget (texto, iconos y click listeners)
+// Actualiza texto, iconos y acciones del widget
 fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
@@ -85,13 +99,13 @@ fun updateAppWidget(
     val userLoggedIn = auth.currentUser != null
 
     CoroutineScope(Dispatchers.Main).launch {
-        // Obtenemos el total del inventario desde Room
+        // Obtener el total del inventario desde Room
         val dao = InventoryDB.getDatabase(context).inventoryDao()
         val repository = InventoryRepository(dao)
         val items = repository.getInventoryItems().first()
         val totalValue = items.sumOf { it.price * it.quantity }
 
-        // Formateamos el saldo con separadores 1.234,56
+        // Formatear el valor: 1.234,56
         val symbols = DecimalFormatSymbols().apply {
             groupingSeparator = '.'
             decimalSeparator = ','
@@ -101,23 +115,23 @@ fun updateAppWidget(
 
         // Lógica de visibilidad:
         // - Si NO está logueado → siempre "****"
-        // - Si está logueado y visible → muestra el saldo
+        // - Si está logueado y visible → muestra saldo
         // - Si está logueado y NO visible → "****"
         val displayText =
             if (userLoggedIn && isVisible) formattedTotal else "****"
 
         views.setTextViewText(R.id.inventory_amount_text, displayText)
 
-        // Icono del ojo según estado (usando drawables del sistema)
+        // Icono del ojo usando drawables del sistema
         val iconRes =
             if (userLoggedIn && isVisible)
-                android.R.drawable.ic_menu_close_clear_cancel  // modo ocultar
+                android.R.drawable.ic_menu_close_clear_cancel  // “ocultar”
             else
-                android.R.drawable.ic_menu_view                // modo mostrar
+                android.R.drawable.ic_menu_view                 // “ver”
 
         views.setImageViewResource(R.id.visibility_toggle_button, iconRes)
 
-        // PendingIntent para el botón del ojo (broadcast al mismo AppWidgetProvider)
+        // PendingIntent para el botón del ojo (envía broadcast a este mismo AppWidgetProvider)
         val toggleIntent = Intent(context, Inventory::class.java).apply {
             action = ACTION_TOGGLE_VISIBILITY
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -132,7 +146,7 @@ fun updateAppWidget(
 
         views.setOnClickPendingIntent(R.id.visibility_toggle_button, togglePendingIntent)
 
-        // PendingIntent para el botón de settings (abre MainActivity)
+        // PendingIntent para el botón de settings (abre MainActivity normalmente)
         val launchIntent = Intent(context, MainActivity::class.java)
         val launchPendingIntent = PendingIntent.getActivity(
             context,
@@ -142,22 +156,23 @@ fun updateAppWidget(
         )
         views.setOnClickPendingIntent(R.id.settings_button, launchPendingIntent)
 
-        // Finalmente, actualizamos el widget
+        // Finalmente actualizamos el widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }
 
-// Invierte el estado visible/oculto en SharedPreferences
+// Invierte el estado visible/oculto y lo guarda en SharedPreferences
 fun toggleVisibility(context: Context, appWidgetId: Int) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val current = prefs.getBoolean(PREF_PREFIX_KEY + appWidgetId, false)
     prefs.edit().putBoolean(PREF_PREFIX_KEY + appWidgetId, !current).apply()
 }
 
-// Limpia las preferencias cuando el widget se borra
+// Limpia la preferencia de visibilidad cuando el widget se elimina
 fun onWidgetDeleted(context: Context, appWidgetId: Int) {
     context.getSharedPreferences(PREFS_NAME, 0)
         .edit()
         .remove(PREF_PREFIX_KEY + appWidgetId)
         .apply()
 }
+
