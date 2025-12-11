@@ -8,20 +8,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.inventory.data.InventoryDB
 import com.example.inventory.data.InventoryRepository
 import com.example.inventory.model.Inventory
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class InventoryViewModel(application: Application) : AndroidViewModel(application) {
-
+class InventoryViewModel(
+    application: Application,
     private val repository: InventoryRepository
-    val inventoryItems: LiveData<List<Inventory>>
+) : AndroidViewModel(application) {
 
-    init {
-        val inventoryDao = InventoryDB.getDatabase(application).inventoryDao()
-        repository = InventoryRepository(inventoryDao)
-        // Start syncing data and expose it to the UI
-        inventoryItems = repository.getInventoryItems().asLiveData()
-    }
+    val inventoryItems: LiveData<List<Inventory>> =
+        repository.getInventoryItems().asLiveData()
 
     fun getItem(id: String): LiveData<Inventory> {
         return repository.getInventoryItem(id).asLiveData()
@@ -44,4 +39,12 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
             repository.deleteInventoryItem(item)
         }
     }
+
+    constructor(application: Application) : this(
+        application,
+        InventoryRepository(
+            InventoryDB.getDatabase(application).inventoryDao()
+        )
+    )
 }
+
