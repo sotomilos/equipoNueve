@@ -43,11 +43,9 @@ class ItemDetailsFragment : Fragment() {
 
         val inventoryItem = arguments?.getSerializable("inventory_item") as? Inventory
 
-
         view.findViewById<MaterialToolbar>(R.id.toolbarDetails).setNavigationOnClickListener {
             parentFragmentManager.popBackStack()
         }
-
 
         inventoryItem?.let { item ->
 
@@ -63,9 +61,9 @@ class ItemDetailsFragment : Fragment() {
             val formattedTotal = "$" + formatter.format(totalValue)
 
             view.findViewById<TextView>(R.id.tvItem).text = item.name
-            view.findViewById<TextView>(R.id.tvValorUnidad).text = formattedPrice
+            view.findViewById<TextView>(R.id.tvValorUnidad).text = "$${item.price}"
             view.findViewById<TextView>(R.id.tvCantidad).text = "${item.quantity}"
-            view.findViewById<TextView>(R.id.tvSumaTotal).text = formattedTotal
+            view.findViewById<TextView>(R.id.tvSumaTotal).text = "$${item.quantity * item.price}"
 
             view.findViewById<Button>(R.id.btnDelete).setOnClickListener {
                 AlertDialog.Builder(requireContext())
