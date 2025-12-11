@@ -54,7 +54,7 @@
         android:layout_below="@id/top_right_container"
         android:layout_alignEnd="@id/top_right_container"
         android:layout_marginTop="8dp"
-        android:text="$0.00"
+        android:text="****"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold" />
