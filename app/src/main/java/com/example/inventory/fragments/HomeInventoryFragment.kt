@@ -1,6 +1,5 @@
 package com.example.inventory.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,15 +13,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.R
 import com.example.inventory.adapters.InventoryAdapter
-import com.example.inventory.sessions.SessionManager
 import com.example.inventory.ui.MainActivity
 import com.example.inventory.viewmodel.InventoryViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class HomeInventoryFragment : Fragment() {
 
-    private lateinit var sessionManager: SessionManager
+    private lateinit var auth: FirebaseAuth
     private val inventoryViewModel: InventoryViewModel by viewModels()
     private lateinit var inventoryAdapter: InventoryAdapter
     private lateinit var recyclerView: RecyclerView
@@ -37,7 +38,7 @@ class HomeInventoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sessionManager = SessionManager(requireContext())
+        auth = Firebase.auth
 
         recyclerView = view.findViewById(R.id.recyclerview)
         progressBar = view.findViewById(R.id.pbCircular)
@@ -62,7 +63,6 @@ class HomeInventoryFragment : Fragment() {
         inventoryAdapter = InventoryAdapter(emptyList()) { inventory ->
             val fragment = ItemDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    // Pass only the ID
                     putString("inventory_item_id", inventory.id)
                 }
             }
@@ -92,11 +92,8 @@ class HomeInventoryFragment : Fragment() {
     private fun setupLogoutButton(view: View) {
         val logoutButton: ImageView = view.findViewById(R.id.iv_logout)
         logoutButton.setOnClickListener {
-            sessionManager.logout()
-            val intent = Intent(requireActivity(), MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-            startActivity(intent)
+            auth.signOut()
+            (activity as? MainActivity)?.showLogin()
         }
     }
 

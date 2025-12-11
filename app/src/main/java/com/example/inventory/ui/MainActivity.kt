@@ -6,24 +6,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import com.example.inventory.R
 import com.example.inventory.fragments.HomeInventoryFragment
-import com.example.inventory.fragments.LoginFragment
-import com.example.inventory.sessions.SessionManager
+import com.example.inventory.fragments.LoginRegistreFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var sessionManager: SessionManager
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // Initialize SessionManager before using it
-        sessionManager = SessionManager(this)
+        auth = Firebase.auth
 
         if (savedInstanceState == null) {
-            if (sessionManager.isLoggedIn()) {
+            if (auth.currentUser != null) {
                 showHome()
             } else {
                 showLogin()
@@ -31,17 +32,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun showHome() {
+    fun showHome() {
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             replace(R.id.main_fragment_container, HomeInventoryFragment())
         }
     }
-    private fun showLogin() {
+
+    fun showLogin() {
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            replace(R.id.main_fragment_container, LoginFragment())
+            replace(R.id.main_fragment_container, LoginRegistreFragment())
         }
     }
 }
