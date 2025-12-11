@@ -11,8 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class InventoryRepository(private val inventoryDao: InventoryDao) {
+@Singleton
+class InventoryRepository @Inject constructor(private val inventoryDao: InventoryDao) {
 
     private val firestore = Firebase.firestore.collection("inventory")
 

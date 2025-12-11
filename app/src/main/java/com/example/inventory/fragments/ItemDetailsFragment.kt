@@ -14,9 +14,11 @@ import com.example.inventory.model.Inventory
 import com.example.inventory.viewmodel.InventoryViewModel
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 
+@AndroidEntryPoint
 class ItemDetailsFragment : Fragment() {
 
     private val viewModel: InventoryViewModel by viewModels()
@@ -82,9 +84,9 @@ class ItemDetailsFragment : Fragment() {
 
     private fun showDeleteConfirmationDialog(item: Inventory) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete Product")
-            .setMessage("Are you sure you want to delete '${item.name}'?")
-            .setPositiveButton("Delete") { _, _ ->
+            .setTitle("Borrar producto")
+            .setMessage("Estas seguro de borrar '${item.name}'?")
+            .setPositiveButton("Borrar") { _, _ ->
                 viewModel.deleteInventoryItem(item)
                 parentFragmentManager.popBackStack()
             }

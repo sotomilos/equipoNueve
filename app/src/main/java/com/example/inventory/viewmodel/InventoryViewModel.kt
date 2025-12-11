@@ -1,27 +1,22 @@
 package com.example.inventory.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.inventory.data.InventoryDB
 import com.example.inventory.data.InventoryRepository
 import com.example.inventory.model.Inventory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class InventoryViewModel(application: Application) : AndroidViewModel(application) {
-
+@HiltViewModel
+class InventoryViewModel @Inject constructor(
     private val repository: InventoryRepository
-    val inventoryItems: LiveData<List<Inventory>>
+) : ViewModel() {
 
-    init {
-        val inventoryDao = InventoryDB.getDatabase(application).inventoryDao()
-        repository = InventoryRepository(inventoryDao)
-        // Start syncing data and expose it to the UI
-        inventoryItems = repository.getInventoryItems().asLiveData()
-    }
+    val inventoryItems: LiveData<List<Inventory>> = repository.getInventoryItems().asLiveData()
 
     fun getItem(id: String): LiveData<Inventory> {
         return repository.getInventoryItem(id).asLiveData()

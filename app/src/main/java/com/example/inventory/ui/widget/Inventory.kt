@@ -5,11 +5,19 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import com.example.inventory.viewmodel.ACTION_TOGGLE_VISIBILITY
-import com.example.inventory.viewmodel.onWidgetDeleted
-import com.example.inventory.viewmodel.toggleVisibility
-import com.example.inventory.viewmodel.updateAppWidget
+import com.example.inventory.viewmodel.WidgetViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class Inventory : AppWidgetProvider() {
+
+    @Inject
+    lateinit var viewModel: WidgetViewModel
+    private val scope = CoroutineScope(Dispatchers.Main)
 
     override fun onUpdate(
         context: Context,
@@ -17,7 +25,9 @@ class Inventory : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            scope.launch {
+                viewModel.updateAppWidget(context, appWidgetManager, appWidgetId)
+            }
         }
     }
 
@@ -26,17 +36,20 @@ class Inventory : AppWidgetProvider() {
         if (ACTION_TOGGLE_VISIBILITY == intent.action) {
             val appWidgetId = intent.getIntExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID)
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            )
             if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                toggleVisibility(context, appWidgetId)
-                updateAppWidget(context, AppWidgetManager.getInstance(context), appWidgetId)
+                viewModel.toggleVisibility(context, appWidgetId)
+                scope.launch {
+                    viewModel.updateAppWidget(context, AppWidgetManager.getInstance(context), appWidgetId)
+                }
             }
         }
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
-            onWidgetDeleted(context, appWidgetId)
+            viewModel.onWidgetDeleted(context, appWidgetId)
         }
     }
 }

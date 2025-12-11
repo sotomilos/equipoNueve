@@ -15,7 +15,9 @@ import com.example.inventory.R
 import com.example.inventory.model.Inventory
 import com.example.inventory.viewmodel.InventoryViewModel
 import com.google.android.material.textfield.TextInputEditText
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class UpdateProductFragment : Fragment() {
 
     private val viewModel: InventoryViewModel by viewModels()
